@@ -36,7 +36,7 @@ class Ui_MainWindow(object):
         self.pushButton.setObjectName("pushButton")
 
         self.widget = MplWidget(self.centralwidget)
-        self.widget.setGeometry(QtCore.QRect(390, 90, 300, 300))
+        self.widget.setGeometry(QtCore.QRect(390, 90, 330, 330))
         self.widget.setObjectName("widget")
 
         MainWindow.setCentralWidget(self.centralwidget)

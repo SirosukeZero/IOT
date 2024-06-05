@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt,QTimer
 from PyQt5.QtWidgets import QApplication, QMainWindow
 import matplotlib
 import numpy as np
@@ -25,11 +25,20 @@ class Lab1(QMainWindow):
         self.MplWidget.canvas.axes.plot(self.x, self.y, 'r', linewidth=0.5)
         self.MplWidget.canvas.draw()
 
-        self.ui.pushButton.clicked.connect(self.button_function)
+        self.timer = QTimer()
+        # self.timer.timeout.connect(self.showTime)
+        self.ui.pushButton.setText("Enable")
+        self.ui.pushButton.clicked.connect(self.timeFunction)
+        
         self.setWindowTitle("arduino_sensors")
 
-    def button_function(self):
-        print("The Test button Works")
+    def timeFunction(self):
+        if self.ui.pushButton.text() == "Enable":
+            self.timer.start(1000)
+            self.ui.pushButton.setText("Disable")
+        elif self.ui.pushButton.text() == "Disable":
+            self.timer.stop()
+            self.ui.pushButton.setText("Enable")
 
 
 if __name__ == "__main__":
