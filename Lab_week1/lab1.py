@@ -6,6 +6,7 @@ import matplotlib
 
 from lab1_ui import *
 
+
 class Lab1(QMainWindow):
     def __init__(self, *args):
         QMainWindow.__init__(self)
@@ -18,7 +19,7 @@ class Lab1(QMainWindow):
 
     def button_function(self):
         print("poep")
-    
+
 
 if __name__ == "__main__":
     app = QApplication([])
