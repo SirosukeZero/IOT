@@ -8,8 +8,12 @@
 
 #define OFF 0
 #define ON 1
+#define LED_ON "on"
+#define LED_OFF "off"
+#define LED_STATUS "status"
+#define LED_BLINK "blink"
 
-String status = "off";
+String status = LED_OFF;
 
 // put your setup code here
 void setup() {
@@ -28,15 +32,14 @@ void setup() {
 
 }
 
-
-// put your main code here
 void loop() {
   
   if (Serial.available() > 0) {
     String msg = Serial.readString();
 
-    if (msg == "blink") {
-      status = "blink";
+    // BLINK
+    if (msg == LED_BLINK) {
+      status = LED_BLINK;
       while (true) {
         digitalWrite(LED_BUILTIN, HIGH);
         delay(1000);
@@ -48,26 +51,26 @@ void loop() {
         if (Serial.available() > 0) {
           msg = Serial.readString();
 
-          if(msg == "status"){
+          if(msg == LED_STATUS){
              Serial.println(status);
-          }else if (msg != "blink") {
+          }else if (msg != LED_STATUS) {
             break;
           }
         }
       }
     }
-
-    if (msg == "on") {
+    // ON
+    if (msg == LED_ON) {
       digitalWrite(LED_BUILTIN, HIGH);
-      status = "on";
+      status = LED_ON;
     }
-
-    if (msg == "off") {
+    // OFF
+    if (msg == LED_OFF) {
       digitalWrite(LED_BUILTIN, LOW);
-      status = "off";
+      status = LED_OFF;
     }
-
-    if(msg == "status"){
+    // STATUS
+    if(msg == LED_STATUS){
       Serial.println(status);
     }
      

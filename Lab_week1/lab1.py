@@ -1,24 +1,35 @@
 import sys
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import *
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow
 import matplotlib
+import numpy as np
+matplotlib.use("Qt5Agg")
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.figure import Figure
 
-from lab1_ui import *
+from lab1_ui import Ui_MainWindow
+from mplwidget import MplWidget
 
 
 class Lab1(QMainWindow):
     def __init__(self, *args):
-        QMainWindow.__init__(self)
+        super(Lab1, self).__init__(*args)
         self.ui = Ui_MainWindow()
-        self.MplWidget = matplotlib.use("Qt5Agg")
         self.ui.setupUi(self)
+        self.MplWidget = self.ui.widget
+
+        self.x = np.arange(1, 6)
+        self.y = np.random.rand(5)
+        self.MplWidget.canvas.axes.clear()
+        self.MplWidget.canvas.axes.plot(self.x, self.y, 'r', linewidth=0.5)
+        self.MplWidget.canvas.draw()
+
         self.ui.pushButton.clicked.connect(self.button_function)
-        # window = loadUi("Lab_week1/lab1.ui", self)
         self.setWindowTitle("arduino_sensors")
 
     def button_function(self):
-        print("poep")
+        print("The Test button Works")
 
 
 if __name__ == "__main__":

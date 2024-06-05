@@ -9,35 +9,44 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from mplwidget import mplwidget
+from mplwidget import MplWidget
 
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(800, 600)
+
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox.setGeometry(QtCore.QRect(70, 150, 261, 191))
         self.groupBox.setObjectName("groupBox")
+
         self.spinBox = QtWidgets.QSpinBox(self.groupBox)
         self.spinBox.setGeometry(QtCore.QRect(10, 120, 171, 31))
         self.spinBox.setObjectName("spinBox")
         self.spinBox_2 = QtWidgets.QSpinBox(self.groupBox)
         self.spinBox_2.setGeometry(QtCore.QRect(10, 50, 171, 31))
         self.spinBox_2.setObjectName("spinBox_2")
+
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton.setGeometry(QtCore.QRect(70, 100, 89, 25))
         self.pushButton.setObjectName("pushButton")
-        self.widget = mplwidget(self.centralwidget)
-        self.widget.setGeometry(QtCore.QRect(390, 90, 211, 231))
+
+        self.widget = MplWidget(self.centralwidget)
+        self.widget.setGeometry(QtCore.QRect(390, 90, 300, 300))
         self.widget.setObjectName("widget")
+
         MainWindow.setCentralWidget(self.centralwidget)
+
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 22))
         self.menubar.setObjectName("menubar")
+
         MainWindow.setMenuBar(self.menubar)
+        
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
