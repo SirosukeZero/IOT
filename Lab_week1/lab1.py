@@ -1,22 +1,32 @@
+#   Students: Ryoma Nonaka & Jonas Skolnik
+#   UvAnetID: 14932431 & 14932423
+#   Studie: BSc Informatica
+#   File: lab1.py
+#   Goal: This file implements a PyQt5 application that interacts with
+#   accelerometer data to visualize the data in real-time. The application
+#   generates random data for initial plotting and allows the user to start
+#   and stop the data process with a button click. After enabling the button
+#   It uses the x y z data given by the arduino.
+
 import sys
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtWidgets import QApplication, QMainWindow
 import matplotlib
 import numpy as np
-import serial
+from lab1_ui import Ui_MainWindow
+# from mplwidget import MplWidget
+from lab1_accel import get_accelarator
+from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QApplication, QMainWindow
+# from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as
+# FigureCanvas
+# from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as
+# NavigationToolbar
+# from matplotlib.figure import Figure
 
 matplotlib.use("Qt5Agg")
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-from matplotlib.figure import Figure
 
-from lab1_ui import Ui_MainWindow
-from mplwidget import MplWidget
-
-
-ser = serial.Serial(port='/dev/ttyACM0', baudrate=9600)
-
+# 1000 = 1 seconde
 seconden = 1000
+max_x = 6
 
 
 class Lab1(QMainWindow):
@@ -29,18 +39,13 @@ class Lab1(QMainWindow):
 
         self.begin = 1
         self.end = 6
+        self.init_random_data()
 
-        self.x = np.arange(self.begin, self.end)
-        self.y = np.random.rand(self.end - self.begin)
         self.ui.spinBox.setValue(self.end - self.begin)
         self.ui.spinBox_2.setValue(1)
 
-        self.MplWidget.canvas.axes.clear()
-        self.MplWidget.canvas.axes.plot(self.x, self.y, "r", linewidth=0.5)
-        self.MplWidget.canvas.draw()
-        self.x = []
-        self.y = []
-        self.acc = 0
+        self.plot_random()
+        self.reset()
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.TimerEnable)
@@ -49,6 +54,18 @@ class Lab1(QMainWindow):
         self.ui.pushButton.clicked.connect(self.timeFunction)
 
         self.setWindowTitle("arduino_sensors")
+
+    def init_random_data(self):
+        self.x = np.arange(self.begin, self.end)
+        self.y = np.random.rand(self.end - self.begin)
+        self.yX = []
+        self.yY = []
+        self.yZ = []
+
+    def plot_random(self):
+        self.MplWidget.canvas.axes.clear()
+        self.MplWidget.canvas.axes.plot(self.x, self.y, "r", linewidth=0.4)
+        self.MplWidget.canvas.draw()
 
     def timeFunction(self):
         if self.ui.pushButton.text() == "Enable":
@@ -60,25 +77,45 @@ class Lab1(QMainWindow):
         elif self.ui.pushButton.text() == "Disable":
             self.timer.stop()
             self.ui.pushButton.setText("Enable")
-            self.x = []
-            self.y = []
-            self.acc = 0
+            self.reset()
 
     def TimerEnable(self):
         self.update_x()
 
     def update_x(self):
         self.acc += 1
+        x, y, z = get_accelarator()
         self.x.append(self.acc)
-        self.y.append(np.random.rand())
-        if len(self.x) <= self.end:
-            self.MplWidget.canvas.axes.plot(self.x, self.y, "r", linewidth=0.5)
-            self.MplWidget.canvas.draw()
+        self.yX.append(x)
+        self.yY.append(y)
+        self.yZ.append(z)
+        if self.acc >= max_x:
+            self.yX.pop(0)
+            self.yY.pop(0)
+            self.yZ.pop(0)
+            self.x.pop(0)
+        if self.acc <= self.end:
+            self.update_plot()
         else:
             self.timeFunction()
-            self.x = []
-            self.y = []
-            self.acc = 0
+            self.reset()
+
+    def update_plot(self):
+        self.MplWidget.canvas.axes.clear()
+        self.MplWidget.canvas.axes.plot(self.x, self.yX, "r",
+                                        linewidth=0.4)
+        self.MplWidget.canvas.axes.plot(self.x, self.yY, "g",
+                                        linewidth=0.4)
+        self.MplWidget.canvas.axes.plot(self.x, self.yZ, "b",
+                                        linewidth=0.4)
+        self.MplWidget.canvas.draw()
+
+    def reset(self):
+        self.x = []
+        self.yX = []
+        self.yY = []
+        self.yZ = []
+        self.acc = 0
 
 
 if __name__ == "__main__":

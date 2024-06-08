@@ -3,7 +3,7 @@
 //  Poject: Lab1_task1
 //  Group: G
 //  Students: Jonas Skolnik en Ryoma Nonaka
-//  Date:
+//  Date: 6/8/2024
 //  ------------------------------------------
 
 #include <Arduino_LSM6DS3.h>
@@ -17,7 +17,6 @@
 
 String status = LED_OFF;
 
-// put your setup code here
 void setup() {
 
   // initialize digital pin LED_BUILTIN as an output.
@@ -34,10 +33,13 @@ void setup() {
 
 }
 
+/*  This function receives the command given by a file and 
+    and procceeds to execute the given command
+    blink, on, off or status.
+ */
 void loop() {
   if (Serial.available() > 0) {
     String msg = Serial.readString();
-
     // BLINK
     if (msg == LED_BLINK) {
       status = LED_BLINK;
@@ -74,6 +76,5 @@ void loop() {
     if(msg == LED_STATUS){
       Serial.println(status);
     }
-     
   }
 }
