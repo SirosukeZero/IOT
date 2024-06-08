@@ -6,6 +6,8 @@
 //  Date:
 //  ------------------------------------------
 
+#include <Arduino_LSM6DS3.h>
+
 #define OFF 0
 #define ON 1
 #define LED_ON "on"
@@ -33,7 +35,6 @@ void setup() {
 }
 
 void loop() {
-  
   if (Serial.available() > 0) {
     String msg = Serial.readString();
 

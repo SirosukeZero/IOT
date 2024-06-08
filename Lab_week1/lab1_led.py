@@ -1,6 +1,6 @@
 import serial
 
-ser = serial.Serial(port='/dev/ttyACM', baudrate=9600)
+ser = serial.Serial(port='/dev/ttyACM0', baudrate=9600)
 
 
 def LED_ON():
