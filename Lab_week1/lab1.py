@@ -55,6 +55,8 @@ class Lab1(QMainWindow):
 
         self.setWindowTitle("arduino_sensors")
 
+    #   Function initializing the data when starting the program
+    #   and the lists for the data from the arduino accelerator
     def init_random_data(self):
         self.x = np.arange(self.begin, self.end)
         self.y = np.random.rand(self.end - self.begin)
@@ -62,11 +64,14 @@ class Lab1(QMainWindow):
         self.yY = []
         self.yZ = []
 
+    #   This Function plots the initial random data
     def plot_random(self):
         self.MplWidget.canvas.axes.clear()
         self.MplWidget.canvas.axes.plot(self.x, self.y, "r", linewidth=0.4)
         self.MplWidget.canvas.draw()
 
+    #   This Function handles the enable/disable
+    #   button click to start or stop the timer
     def timeFunction(self):
         if self.ui.pushButton.text() == "Enable":
             self.ui.pushButton.setText("Disable")
@@ -79,9 +84,12 @@ class Lab1(QMainWindow):
             self.ui.pushButton.setText("Enable")
             self.reset()
 
+    #   This Function enables the timer to update the plot
     def TimerEnable(self):
         self.update_x()
 
+    #   This Function updates the x-axis and accelerometer data,
+    #   then updates the plot
     def update_x(self):
         self.acc += 1
         x, y, z = get_accelarator()
@@ -89,6 +97,7 @@ class Lab1(QMainWindow):
         self.yX.append(x)
         self.yY.append(y)
         self.yZ.append(z)
+        print(self.yX, self.yY, self.yZ)
         if self.acc >= max_x:
             self.yX.pop(0)
             self.yY.pop(0)
@@ -100,6 +109,7 @@ class Lab1(QMainWindow):
             self.timeFunction()
             self.reset()
 
+    #   This Function Updates the plot with the latest data
     def update_plot(self):
         self.MplWidget.canvas.axes.clear()
         self.MplWidget.canvas.axes.plot(self.x, self.yX, "r",
@@ -110,6 +120,7 @@ class Lab1(QMainWindow):
                                         linewidth=0.4)
         self.MplWidget.canvas.draw()
 
+    #   This Function Resets the data lists and accumulator
     def reset(self):
         self.x = []
         self.yX = []
