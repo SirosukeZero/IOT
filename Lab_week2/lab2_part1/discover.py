@@ -21,7 +21,7 @@ async def main(args: argparse.Namespace):
         print()
         print(d)
         print(a)
-        if a.local_name == "BLE-LAB33":
+        if a.local_name == "BLE-LAB41":
             print("Found Arduino device!!")
 
 

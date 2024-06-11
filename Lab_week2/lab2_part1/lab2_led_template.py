@@ -8,7 +8,7 @@ from bleak import BleakClient
 from bleak import BleakScanner
 from bleak import discover
 
-ARDUINO_LOCAL_NAME = "BLE-AR33"  #Use the correct Arduino number in this identifier!!
+ARDUINO_LOCAL_NAME = "BLE-AR41"  #Use the correct Arduino number in this identifier!!
 
 LED_UUID = "19b10001-e8f2-537e-4f6c-d104768a1214"
 
