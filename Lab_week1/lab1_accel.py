@@ -6,7 +6,7 @@
 
 import serial
 
-ser = serial.Serial(port='/dev/ttyACM0', baudrate=9600)
+ser = serial.Serial(port='/dev/ttyACM1', baudrate=9600)
 
 
 # decodes the given data

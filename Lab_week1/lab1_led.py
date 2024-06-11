@@ -8,7 +8,7 @@
 
 import serial
 
-ser = serial.Serial(port='/dev/ttyACM5', baudrate=9600)
+ser = serial.Serial(port='/dev/ttyACM0', baudrate=9600)
 
 
 # requests LED ON
