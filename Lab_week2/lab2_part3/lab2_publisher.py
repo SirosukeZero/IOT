@@ -1,0 +1,131 @@
+"""
+lab2_sensor_template
+----------------
+
+sensor reading example T.R. Walstra, may 2024
+"""
+
+import argparse
+import asyncio
+import logging
+import struct
+import sys
+import numpy
+import zmq
+from bleak import BleakClient, BleakScanner
+
+BLE_UUID_ACCEL_SENSOR_DATA = "4664E7A1-5A13-BFFF-4636-7D0A4B16496C"
+exit_flag = False
+
+logger = logging.getLogger(__name__)
+
+bind = "tcp://127.0.0.1:1511"
+ctx = zmq.Context()
+s = ctx.socket(zmq.PUB)
+s.bind(bind)
+
+
+def sync(bind_to: str) -> None:
+    # use bind socket + 1
+    sync_with = ':'.join(
+        bind_to.split(':')[:-1] + [str(int(bind_to.split(':')[-1]) + 1)]
+    )
+    ctx = zmq.Context.instance()
+    s = ctx.socket(zmq.REP)
+    s.bind(sync_with)
+    print("Waiting for subscriber to connect...")
+    s.recv()
+    print("   Done.")
+    s.send(b'GO')
+
+
+def notification_handler(sender, data):
+    #convert the data into 3 floats
+    sensor_values = struct.unpack('fff', data)
+    print("data:", sensor_values)
+    s.send_pyobj(sensor_values)
+
+
+async def main(args: argparse.Namespace):
+    global exit_flag
+
+    logger.info("starting scan...")
+
+    device = await BleakScanner.find_device_by_name(
+          args.name, cb=dict(use_bdaddr=args.macos_use_bdaddr))
+    if device is None:
+        logger.error("could not find device with name '%s'", args.name)
+        return
+
+    print("connecting to device...")
+    print("device name:", device.name)
+    print("device addr:", device.address)
+    print("services: ", args.services)
+
+    async with BleakClient(
+        device,
+        services=args.services,
+    ) as client:
+        logger.info("Connected")
+
+        await client.start_notify(BLE_UUID_ACCEL_SENSOR_DATA, notification_handler)
+
+        while not exit_flag:
+            await asyncio.sleep(1.0)
+            print(".")
+        logger.info("Disconnecting...")
+
+    logger.info("Disconnected")
+
+
+if __name__ == "__main__":
+
+#execute this file as: "python lab2_sensor.py --name <arduino_local_name>
+
+    parser = argparse.ArgumentParser()
+    print(parser)
+
+    device_group = parser.add_mutually_exclusive_group(required=True)
+
+    device_group.add_argument(
+        "--name",
+        metavar="<name>",
+        help="the name of the bluetooth device to connect to",
+    )
+    device_group.add_argument(
+        "--address",
+        metavar="<address>",
+        help="the address of the bluetooth device to connect to",
+    )
+
+    parser.add_argument(
+        "--macos-use-bdaddr",
+        action="store_true",
+        help="when true use Bluetooth address instead of UUID on macOS",
+    )
+
+    parser.add_argument(
+        "--services",
+        nargs="+",
+        metavar="<uuid>",
+        help="if provided, only enumerate matching service(s)",
+    )
+
+    parser.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        help="sets the log level to debug",
+    )
+
+    args = parser.parse_args()
+
+    log_level = logging.DEBUG if args.debug else logging.INFO
+    logging.basicConfig(
+        level=log_level,
+        format="%(asctime)-15s %(name)-8s %(levelname)s: %(message)s",
+    )
+
+    sync(bind)
+
+    asyncio.run(main(args))

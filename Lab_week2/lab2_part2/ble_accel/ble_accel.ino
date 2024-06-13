@@ -18,6 +18,7 @@ union multi_sensor_data accelSensorData;
 
 //----------------------------------------------------------------------------------------------------------------------
 // BLE
+
 //----------------------------------------------------------------------------------------------------------------------
 
 BLEService sensorDataService( BLE_UUID_SENSOR_DATA_SERVICE );
@@ -105,8 +106,8 @@ bool setupBleMode()
   }
 
   // set advertised local name and service UUID:
-  BLE.setDeviceName( "BLE-LAB2" );
-  BLE.setLocalName( "BLE-LAB2" );
+  BLE.setDeviceName( "BLE-LAB30" );
+  BLE.setLocalName( "BLE-LAB30" );
   BLE.setAdvertisedService( sensorDataService );
 
   // BLE add characteristics

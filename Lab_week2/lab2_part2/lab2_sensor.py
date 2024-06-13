@@ -17,9 +17,10 @@ exit_flag = False
 logger = logging.getLogger(__name__)
 
 
-def notification_handler(sender,data):
+def notification_handler(sender, data):
     #convert the data into 3 floats
-    print("data:",sensorvalues)
+    sensor_values = struct.unpack('fff', data)
+    print("data:", sensor_values)
 
 async def main(args: argparse.Namespace):
     global exit_flag
@@ -41,31 +42,24 @@ async def main(args: argparse.Namespace):
         device,
         services=args.services,
     ) as client:
-        logger.info("connected")
+        logger.info("Connected")
 
+        await client.start_notify(BLE_UUID_ACCEL_SENSOR_DATA, notification_handler)
 
-#your code here
-#Get the client services and use the read_gatt_char from the client. Check if
-#the value is the UUID above and start a notification handler using the client 
-#start_notify function of Bleak. The async await takes care that this function
-# is executed on each notification of data from the arduino
-#Read the data and print it. 
-#
         while not exit_flag:
             await asyncio.sleep(1.0)
             print(".")
+        logger.info("Disconnecting...")
 
-        logger.info("disconnecting...")
-
-    logger.info("disconnected")
+    logger.info("Disconnected")
 
 
 if __name__ == "__main__":
 
 #execute this file as: "python lab2_sensor.py --name <arduino_local_name>
 
-
     parser = argparse.ArgumentParser()
+ 
 
     device_group = parser.add_mutually_exclusive_group(required=True)
 
@@ -99,7 +93,7 @@ if __name__ == "__main__":
         action="store_true",
         help="sets the log level to debug",
     )
-
+    
     args = parser.parse_args()
 
     log_level = logging.DEBUG if args.debug else logging.INFO
