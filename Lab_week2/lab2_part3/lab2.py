@@ -9,12 +9,19 @@
 #   It uses the x y z data given by the arduino.
 
 import sys
-import zmq
 import matplotlib
 import numpy as np
 from lab2_ui import Ui_MainWindow
+# from mplwidget import MplWidget
+from lab2_accel import get_accelarator
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication, QMainWindow
+# from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as
+# FigureCanvas
+# from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as
+# NavigationToolbar
+# from matplotlib.figure import Figure
+
 matplotlib.use("Qt5Agg")
 
 # 1000 = 1 seconde
@@ -29,8 +36,6 @@ class Lab2(QMainWindow):
         self.ui.setupUi(self)
 
         self.MplWidget = self.ui.widget
-        self.sub = False
-        self.s = main()
 
         self.begin = 1
         self.end = 6
@@ -45,7 +50,7 @@ class Lab2(QMainWindow):
         self.timer = QTimer()
         self.timer.timeout.connect(self.TimerEnable)
 
-        self.ui.pushButton.setText("Subscribe")
+        self.ui.pushButton.setText("Enable")
         self.ui.pushButton.clicked.connect(self.timeFunction)
 
         self.setWindowTitle("arduino_sensors")
@@ -59,27 +64,27 @@ class Lab2(QMainWindow):
         self.yY = []
         self.yZ = []
 
+    #   This Function plots the initial random data
+    def plot_random(self):
+        self.MplWidget.canvas.axes.clear()
+        self.MplWidget.canvas.axes.plot(self.x, self.y, "r", linewidth=0.4)
+        self.MplWidget.canvas.draw()
+
+    #   This Function handles the enable/disable
+    #   button click to start or stop the timer
     def timeFunction(self):
-        if self.ui.pushButton.text() == "Subscribe":
-            self.ui.pushButton.setText("Unsubscribe")
+        if self.ui.pushButton.text() == "Enable":
+            self.ui.pushButton.setText("Disable")
             self.MplWidget.canvas.axes.clear()
             self.MplWidget.canvas.draw()
             self.end = self.ui.spinBox.value()
-            self.subscribe()
             self.timer.start(self.ui.spinBox_2.value() * seconden)
-        elif self.ui.pushButton.text() == "Unsubscribe":
+        elif self.ui.pushButton.text() == "Disable":
             self.timer.stop()
-            self.subscribe()
-            self.ui.pushButton.setText("Subscribe")
+            self.ui.pushButton.setText("Enable")
             self.reset()
 
-    def reset(self):
-        self.x = []
-        self.yX = []
-        self.yY = []
-        self.yZ = []
-        self.acc = 0
-
+    #   This Function enables the timer to update the plot
     def TimerEnable(self):
         self.update_x()
 
@@ -87,7 +92,7 @@ class Lab2(QMainWindow):
     #   then updates the plot
     def update_x(self):
         self.acc += 1
-        x, y, z = self.s.recv_pyobj()
+        x, y, z = get_accelarator()
         self.x.append(self.acc)
         self.yX.append(x)
         self.yY.append(y)
@@ -103,14 +108,8 @@ class Lab2(QMainWindow):
         else:
             self.timeFunction()
             self.reset()
-      
-    def subscribe(self):
-        self.sub = not self.sub
-        if self.sub:
-            self.s.setsockopt(zmq.SUBSCRIBE, b'')
-        else:
-            self.s.setsockopt(zmq.UNSUBSCRIBE, b'')
 
+    #   This Function Updates the plot with the latest data
     def update_plot(self):
         self.MplWidget.canvas.axes.clear()
         self.MplWidget.canvas.axes.plot(self.x, self.yX, "r",
@@ -121,40 +120,14 @@ class Lab2(QMainWindow):
                                         linewidth=0.4)
         self.MplWidget.canvas.draw()
 
-    #   This Function plots the initial random data
-    def plot_random(self):
-        self.MplWidget.canvas.axes.clear()
-        self.MplWidget.canvas.axes.plot(self.x, self.y, "r", linewidth=0.4)
-        self.MplWidget.canvas.draw()
+    #   This Function Resets the data lists and accumulator
+    def reset(self):
+        self.x = []
+        self.yX = []
+        self.yY = []
+        self.yZ = []
+        self.acc = 0
 
-
-def sync(connect_to: str) -> None:
-    # use connect socket + 1
-    sync_with = ':'.join(
-        connect_to.split(':')[:-1] + [str(int(connect_to.split(':')[-1]) + 1)]
-    )
-    ctx = zmq.Context.instance()
-    s = ctx.socket(zmq.REQ)
-    s.connect(sync_with)
-    s.send(b'READY')
-    s.recv()
-
-
-def main():
-    if len(sys.argv) != 2:
-        print('usage: subscriber <connect_to>')
-        sys.exit(1)
-
-    connect_to = sys.argv[1]
-
-    ctx = zmq.Context()
-    s = ctx.socket(zmq.SUB)
-    s.connect(connect_to)
-    s.setsockopt(zmq.SUBSCRIBE, b'')
-
-    sync(connect_to)
-
-    return s
 
 if __name__ == "__main__":
     app = QApplication([])

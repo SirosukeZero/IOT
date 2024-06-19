@@ -19,7 +19,7 @@ exit_flag = False
 
 logger = logging.getLogger(__name__)
 
-bind = "tcp://127.0.0.1:1511"
+bind = "tcp://127.0.0.1:1520"
 ctx = zmq.Context()
 s = ctx.socket(zmq.PUB)
 s.bind(bind)
